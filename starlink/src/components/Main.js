@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
-
+import SatSetting from './SatSetting';
+import SatelliteList from './SatelliteList';
 class Main extends Component {
     render() {
         return (
             <div className='main'>
                 <div className="left-side">
-                    left
+                    <SatSetting />
+                    <SatelliteList />
                 </div>
                 <div className="right-side">
                     right
@@ -14,5 +16,4 @@ class Main extends Component {
         );
     }
 }
-
 export default Main;
