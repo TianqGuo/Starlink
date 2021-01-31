@@ -1,43 +1,88 @@
 import React, {Component} from 'react';
 import { List, Avatar, Button, Checkbox, Spin } from 'antd';
-// import satellite from "../assets/images/satellite1.png";
+import satellite from "../assets/images/satellite.svg";
 
 class SatelliteList extends Component {
+    constructor(){
+        super();
+        this.state = {
+            selected: [],
+            isLoad: false
+        };
+    }
+
+    onChange = e => {
+        const { dataInfo, checked } = e.target;
+        const { selected } = this.state;
+        const list = this.addOrRemove(dataInfo, checked, selected);
+        this.setState({ selected: list })
+    }
+
+    addOrRemove = (item, status, list) => {
+        //case 1: check is ture
+        // -> sat not list -> add it
+        // -> sat is in list -> do nothing
+        // case 2: check is false
+        // -> sat not list -> do nothing
+        // -> sat is in list -> remove it
+        const found = list.some( entry => entry.satid === item.satid);
+        if(status && !found){
+            list.push(item)
+        }
+
+        if(!status && found){
+            // use filter to delete
+            list = list.filter( entry => {
+                return entry.satid !== item.satid;
+            });
+        }
+        return list;
+    }
+
+    onShowSatMap = () =>{
+        this.props.onShowMap(this.state.selected);
+    }
+
     render() {
         const satList = this.props.satInfo ? this.props.satInfo.above : [];
         const { isLoad } = this.props;
+        const { selected } = this.state;
 
         return (
             <div className="sat-list-box">
                 <Button className="sat-list-btn"
-                        size="large">Track on the map</Button>
+                        size="large"
+                        // if nothing selects, cannot press the button
+                        disabled={ selected.length === 0}
+                        onClick={this.onShowSatMap}
+                >Track on the map</Button>
                 <hr/>
 
-                {/*{*/}
-                {/*    isLoad ?*/}
-                {/*        <div className="spin-box">*/}
-                {/*            <Spin tip="Loading..." size="large" />*/}
-                {/*        </div>*/}
-                {/*        :*/}
-                {/*        <List*/}
-                {/*            className="sat-list"*/}
-                {/*            itemLayout="horizontal"*/}
-                {/*            size="small"*/}
-                {/*            dataSource={satList}*/}
-                {/*            renderItem={item => (*/}
-                {/*                <List.Item*/}
-                {/*                    actions={[<Checkbox dataInfo={item} onChange={this.onChange}/>]}*/}
-                {/*                >*/}
-                {/*                    <List.Item.Meta*/}
-                {/*                        avatar={<Avatar size={50} src={satellite} />}*/}
-                {/*                        title={<p>{item.satname}</p>}*/}
-                {/*                        description={`Launch Date: ${item.launchDate}`}*/}
-                {/*                    />*/}
+                {
+                    isLoad ?
+                        <div className="spin-box">
+                            <Spin tip="Loading..." size="large" />
+                        </div>
+                        :
+                        <List
+                            className="sat-list"
+                            itemLayout="horizontal"
+                            size="small"
+                            dataSource={satList}
+                            renderItem={item => (
+                                <List.Item
+                                    actions={[<Checkbox dataInfo={item} onChange={this.onChange}/>]}
+                                >
+                                    <List.Item.Meta
+                                        avatar={<Avatar size={50} src={satellite} />}
+                                        title={<p>{item.satname}</p>}
+                                        description={`Launch Date: ${item.launchDate}`}
+                                    />
 
-                {/*                </List.Item>*/}
-                {/*            )}*/}
-                {/*        />*/}
-                {/*}*/}
+                                </List.Item>
+                            )}
+                        />
+                }
             </div>
         );
     }
